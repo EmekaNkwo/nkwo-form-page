@@ -1,11 +1,13 @@
-import { useEffect, useState, useRef, React } from "react";
-
-// import React from "react";
+import { useEffect, useState, useRef, useContext } from "react";
+// import AuthContext from "./context/AuthContext";
 import "./Login.css";
+// import axios from "./api/axios";
+// const LOGIN_URL = "/auth";
 
 function Login() {
+  // const { setAuth } = useContext(AuthContext);
   const userRef = useRef();
-  const errRef = useRef;
+  const errRef = useRef();
 
   const [user, setUser] = useState("");
   const [pwd, setPwd] = useState("");
@@ -21,12 +23,16 @@ function Login() {
     setErrorMesg("");
   }, [user, pwd]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (user === "admin@example.com" && pwd === "admin") {
-      setSuccess(true);
-    } else {
-      setErrorMesg("Invalid username or password");
+    try {
+      if (user === "admin@example.com" && pwd === "admin") {
+        setSuccess(true);
+      } else {
+        setErrorMesg("Invalid username or password");
+      }
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -58,7 +64,14 @@ function Login() {
         </div>
       ) : (
         <div>
-          <p></p>
+          <p
+            ref={errRef}
+            aria-live="assertive"
+            className={errorMesg ? "alert alert-danger" : "offscreen"}
+          >
+            {errorMesg}
+          </p>
+
           <h1>Login</h1>
           <form onSubmit={handleSubmit}>
             <div className="input-area">
@@ -68,6 +81,8 @@ function Login() {
                 </label>
                 <input
                   type="email"
+                  ref={userRef}
+                  autoComplete="off"
                   className="form-control"
                   id="exampleFormControlInput1"
                   placeholder="Enter Email Address"
@@ -81,12 +96,12 @@ function Login() {
                   Password
                 </label>
                 <input
-                  onChange={(e) => setPwd(e.target.value)}
                   ref={userRef}
                   type="password"
                   className="form-control"
                   id="exampleFormControlInput1"
                   placeholder="Enter Password"
+                  onChange={(e) => setPwd(e.target.value)}
                   value={pwd}
                   required
                 />
