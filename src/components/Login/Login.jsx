@@ -1,11 +1,13 @@
 import { useEffect, useState, useRef, useContext } from "react";
-// import AuthContext from "./context/AuthContext";
+import AuthContext from "./context/AuthContext";
 import "./Login.css";
-// import axios from "./api/axios";
-// const LOGIN_URL = "/auth";
+import axios from "./api/axios";
+
+//This is the Url of the login...Needs Nodejs to run
+const LOGIN_URL = "/auth";
 
 function Login() {
-  // const { setAuth } = useContext(AuthContext);
+  const { setAuth } = useContext(AuthContext);
   const userRef = useRef();
   const errRef = useRef();
 
@@ -13,10 +15,6 @@ function Login() {
   const [pwd, setPwd] = useState("");
   const [errorMesg, setErrorMesg] = useState("");
   const [success, setSuccess] = useState(false);
-
-  // useEffect(() => {
-  //   userRef.current.focus();
-  // }, []);
 
   //This makes the error to disappear when the user makes changes to the input
   useEffect(() => {
@@ -26,13 +24,35 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (user === "admin@example.com" && pwd === "admin") {
-        setSuccess(true);
-      } else {
-        setErrorMesg("Invalid username or password");
-      }
+      const response = await axios.post(
+        LOGIN_URL,
+        JSON.stringify(
+          { user, pwd },
+          {
+            headers: { "Content-Type": "application/json" },
+            withCreditentials: true,
+          }
+        )
+      );
+
+      console.log(JSON.stringify(response?.data));
+      const accessToken = response?.data?.accessToken; //accessToken is the key of the response
+      const roles = response?.data?.roles;
+      setAuth({ user, pwd, roles, accessToken });
+      setUser("");
+      setPwd("");
+      setSuccess(true);
     } catch (err) {
-      console.log(err);
+      if (!err?.response) {
+        setErrorMesg("Server is not responding");
+      } else if (err.response?.status === 400) {
+        setErrorMesg("Wrong username or password"); //error 400 means wrong username or password
+      } else if (err.response?.status === 401) {
+        setErrorMesg("You are not authorized to access this page"); //error 401 means you are not authorized to access this page
+      } else {
+        setErrorMesg("Login Failed");
+      }
+      errRef.current.focus(); //focus on the error message
     }
   };
 
@@ -41,17 +61,6 @@ function Login() {
     setPwd("");
     setSuccess(false);
   };
-
-  // const handleSubmit = async (e) => {
-  //   // This "e.preventDefault prevents the page from reloading"
-  //   e.preventDefault();
-  //   console.log(user, pwd);
-
-  //   //This clears out the values of the inputs of pwd and user
-  //   setUser("");
-  //   setPwd("");
-  //   setSuccess(true);
-  // };
 
   return (
     <div className="container-fluid">
