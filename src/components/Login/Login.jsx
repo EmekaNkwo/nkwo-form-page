@@ -35,19 +35,19 @@ function Login() {
         )
       );
 
-      console.log(JSON.stringify(response?.data));
-      const accessToken = response?.data?.accessToken; //accessToken is the key of the response
-      const roles = response?.data?.roles;
+      console.log(JSON.stringify(response.data));
+      const accessToken = response.data.accessToken; //accessToken is the key of the response
+      const roles = response.data.roles; //This specifies if you are an admin or guest
       setAuth({ user, pwd, roles, accessToken });
       setUser("");
       setPwd("");
       setSuccess(true);
     } catch (err) {
-      if (!err?.response) {
+      if (!err.response) {
         setErrorMesg("Server is not responding");
-      } else if (err.response?.status === 400) {
+      } else if (err.response.status === 400) {
         setErrorMesg("Wrong username or password"); //error 400 means wrong username or password
-      } else if (err.response?.status === 401) {
+      } else if (err.response.status === 401) {
         setErrorMesg("You are not authorized to access this page"); //error 401 means you are not authorized to access this page
       } else {
         setErrorMesg("Login Failed");
